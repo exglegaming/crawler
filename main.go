@@ -1,9 +1,8 @@
 package main
 
-import (
-	"fmt"
-)
-
 func main() {
-	fmt.Println("Hello, World!")
+	normalizeURL("https://blog.boot.dev/path/")
+	normalizeURL("https://blog.boot.dev/path")
+	normalizeURL("http://blog.boot.dev/path/")
+	normalizeURL("https://blog.boot.dev/path")
 }
