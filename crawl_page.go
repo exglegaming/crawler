@@ -11,9 +11,15 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 		<-cfg.concurrencyControl
 		cfg.wg.Done()
 	}()
+
+	if cfg.pagesLen() >= cfg.maxPages {
+		return
+	}
+
 	currentURL, err := url.Parse(rawCurrentURL)
 	if err != nil {
 		fmt.Printf("Error - crawlPage: couldn't parse URL '%s': %v\n", rawCurrentURL, err)
+		return
 	}
 
 	// skip other websites
@@ -23,24 +29,27 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 
 	normalizedURL, err := normalizeURL(rawCurrentURL)
 	if err != nil {
-		fmt.Printf("Error - normalizedURL: %v\n", err)
+		fmt.Printf("Error - normalizedURL: %v", err)
+		return
 	}
 
-	isFirst := cfg.addPageVist(normalizedURL)
+	isFirst := cfg.addPageVisit(normalizedURL)
 	if !isFirst {
 		return
 	}
 
-	fmt.Printf("Crawling %s\n", rawCurrentURL)
+	fmt.Printf("crawling %s\n", rawCurrentURL)
 
 	htmlBody, err := getHTML(rawCurrentURL)
 	if err != nil {
-		fmt.Printf("Error - getHTML: %v\n", err)
+		fmt.Printf("Error - getHTML: %v", err)
+		return
 	}
 
 	nextURLs, err := getURLsFromHTML(htmlBody, cfg.baseURL)
 	if err != nil {
-		fmt.Printf("Error - getURLsFromHTML: %v\n", err)
+		fmt.Printf("Error - getURLsFromHTML: %v", err)
+		return
 	}
 
 	for _, nextURL := range nextURLs {
